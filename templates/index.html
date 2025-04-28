@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>المحاور - مساعد الذكاء الاصطناعي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>المحاور</h1>
+            <p>مساعد ذكي لتفسير القرآن الكريم</p>
+        </div>
+
+        <div id="chat-history" class="chat-history">
+            <!-- الرسائل ستظهر هنا -->
+        </div>
+
+        <div class="chat-input">
+            <button type="submit" id="send">إرسال</button>
+            <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." required/>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#send").on("click", function(event) {
+                const date = new Date();
+                const hour = date.getHours().toString().padStart(2, '0');
+                const minute = date.getMinutes().toString().padStart(2, '0');
+                const str_time = hour + ":" + minute;
+
+                var rawText = $("#user-input").val();
+                if (!rawText.trim()) return;
+
+                var userHtml = `<div class="chat-message user-message">${rawText} <div class="time">${str_time}</div></div>`;
+                $("#chat-history").append(userHtml);
+                $("#user-input").val("");
+
+                $.ajax({
+                    data: {
+                        msg: rawText,
+                    },
+                    type: "POST",
+                    url: "/get",
+                }).done(function(data) {
+                    var botHtml = `<div class="chat-message bot-message">${data} <div class="time">${str_time}</div></div>`;
+                    $("#chat-history").append(botHtml);
+                    $("#chat-history").scrollTop($("#chat-history")[0].scrollHeight);
+                });
+
+                event.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>
+
